@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form class="row g-3" method="POST">
+    <div class="col-md-6">
+      <label for="telephone" class="form-label">Telephone number</label>
+      <input type="text" name="telephone" class="form-control {% if result %}is-valid{% endif %}" id="telephone" aria-describedby="validationServer03Feedback" required value="{{ request.form.telephone }}">
+      <div id="validationServer03Feedback" class="invalid-feedback">
+        Please provide a valid number.
+      </div>
+    </div>
+    <div class="col-12">
+      <button class="btn btn-primary" type="submit">Submit form</button>
+    </div>
+    <p>{{ result }}</p>
+    {% if request.method == 'POST' and error_msg %}
+    <p style="color: red;">{{ error_msg }}</p>
+    {% endif %}
+  </form>
+{% endblock %}
