@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Обработка данных формы</h1>
+    <form method="post">
+        <div class="mb-3">
+            <label for="theme"></label>
+            <input class="form-control" type="text" name="theme" id="theme" value="{{ request.form.theme }}">
+                
+        </div>
+        <div class="mb-3">
+            <label for="message"></label>
+            <textarea class="form-control" name="message" id="message" cols="30" rows="10">{{ request.form.message }}</textarea>
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Send</button>
+        </div>
+        
+    </form>
+    {% if request.method == 'POST' %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Значение</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for name, value in request.form.items() %}
+                 <tr>
+                     <td>{{ name }}</td>
+                     <td>{{ value }}</td>
+                 </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+{% endblock %}
