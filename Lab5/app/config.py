@@ -3,3 +3,4 @@ MYSQL_USER = 'std_1678_lab4'
 MYSQL_DATABASE = 'std_1678_lab4'
 MYSQL_HOST = 'std-mysql.ist.mospolytech.ru'
 MYSQL_PASSWORD = 'killmeplease'
+ADMIN_ROLE_ID = 1
