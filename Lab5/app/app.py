@@ -20,8 +20,25 @@ UPDATE_PARAMS = ['first_name',
 # импорт после создания объектов тк файлы связаны
 from auth import init_login_manager, bp as auth_bp, check_rights
 init_login_manager(app)
-app.register_blueprint(auth_bp)
+app.register_blueprint(auth_bp) 
+from visits import bp as visits_bp
+app.register_blueprint(visits_bp)
 
+@app.before_request
+def log_visit_info():
+    if request.endpoint == 'static' or request.args.get('download_csv'):
+       return None 
+    user_id = getattr(current_user, 'id', None)
+    query = 'INSERT INTO visit_logs (user_id, path) VALUES (%s, %s);'
+    with mysql.connection.cursor(named_tuple=True) as cursor:
+        try:
+            cursor.execute(query, (user_id, request.path))
+            mysql.connection.commit()
+        except:
+            pass
+    
+
+    
 
 def request_params(params_list):
     params = {}
@@ -204,10 +221,11 @@ def check_password(password):
         return None
 
 
-@app.route('/change_password/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/change_password', methods=['GET', 'POST'])
 @login_required
-def change_password(user_id):
+def change_password():
     if request.method == 'POST':
+        user_id = getattr(current_user, 'id', None)
         old_password = request.form.get('old_password')
         new_password = request.form.get('new_password')
         repeated_password = request.form.get('repeated_password')
@@ -226,7 +244,7 @@ def change_password(user_id):
                 cursor.execute(
                     'SELECT * FROM users WHERE id=%s AND password_hash=SHA2(%s, 256);', (user_id, old_password))
                 user = cursor.fetchone() or None
-                print(user)
+                
             except connector.Error:
                 flash('Введены некорректные данные. Ошибка обновления пароля', 'danger')
                 return render_template('change_password.html', errors_dict=errors_dict)

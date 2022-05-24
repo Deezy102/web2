@@ -1,5 +1,3 @@
-from email import message
-from urllib import request
 from flask import Flask, render_template, session, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
 from mysql_db import MySQL

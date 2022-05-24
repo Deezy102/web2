@@ -21,6 +21,9 @@ class UserPolicy:
     def assign_role(self):
         return current_user.is_admin
     
+    def get_all_stats(self):
+        return current_user.is_admin 
+    
 
 
     

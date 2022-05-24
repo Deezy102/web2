@@ -1,0 +1,27 @@
+{% extends 'visits/base.html' %}
+
+{% block tab_content %}
+
+<h2>Журнал посещений</h2>
+<table class="table ">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Path</th>
+            <th>Number of visits</th>
+        </tr>        
+    </thead>
+    <tbody>
+        {% for record in records %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ record.path }}</td>
+            <td>{{ record.count }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('visits.pages_stat', download_csv='True') }}" class="btn btn-primary">Экспорт в csv</a>
+
+{% endblock %}
