@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, logout_user, login_required
 from models import User
 
+
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
@@ -23,7 +24,7 @@ def login():
         login = request.form.get('login')
         password = request.form.get('password')
         if login and password:
-            user = User.query.filter_by(login=login).first() #запрос к бд поиск по логину
+            user = User.query.filter_by(login=login).first()
             if user and user.check_password(password):
                 login_user(user)
                 flash('Вы успешно аутентифицированы.', 'success')

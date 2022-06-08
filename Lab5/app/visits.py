@@ -29,13 +29,39 @@ def generate_report(records):
 @bp.route('/logs')
 def logs():
     page = request.args.get('page', 1, type=int)
+    query = None
+    query_params = None
+    count_query = None
+    count_query_params = None
+    if current_user.can('get_all_stats'):
+        query = ('SELECT visit_logs.*, users.last_name, users.first_name, users.middle_name' 
+            ' FROM visit_logs LEFT JOIN users ON visit_logs.user_id = users.id' 
+            ' ORDER BY visit_logs.created_at DESC' 
+            ' LIMIT %s'
+            ' OFFSET %s;')
+        query_params = (PER_PAGE, PER_PAGE*(page-1))
+        count_query = ('SELECT COUNT(*) AS count from visit_logs;')
+    else:
+        query = ('SELECT visit_logs.*, users.last_name, users.first_name, users.middle_name' 
+            ' FROM visit_logs LEFT JOIN users ON visit_logs.user_id = users.id WHERE users.id = %s' 
+            ' ORDER BY visit_logs.created_at DESC' 
+            ' LIMIT %s'
+            ' OFFSET %s;')
+        query_params = (current_user.id, PER_PAGE, PER_PAGE*(page-1))
+
+        count_query = ('SELECT COUNT(*) AS count from visit_logs WHERE user_id = %s;')
+        count_query_params = (current_user.id, )
+    
     with mysql.connection.cursor(named_tuple=True) as cursor:
-        cursor.execute('SELECT COUNT(*) AS count FROM visit_logs ')
-        total_count = cursor.fetchone().count
-    total_pages = math.ceil(total_count/PER_PAGE)
-    with mysql.connection.cursor(named_tuple=True) as cursor:
-        cursor.execute('SELECT visit_logs.*, users.last_name, users.first_name, users.middle_name FROM visit_logs LEFT JOIN users ON visit_logs.user_id = users.id ORDER BY visit_logs.created_at DESC LIMIT %s OFFSET %s;', (PER_PAGE, PER_PAGE*(page - 1)))
+        cursor.execute(query, query_params)
         records = cursor.fetchall()
+
+    with mysql.connection.cursor(named_tuple=True) as cursor:
+        cursor.execute(count_query, count_query_params or ())   
+        total_count = cursor.fetchone().count
+
+    total_pages = math.ceil(total_count/PER_PAGE)
+
     return render_template('visits/logs.html', records=records, page=page, total_pages=total_pages)
 
 @bp.route('/stats/users')

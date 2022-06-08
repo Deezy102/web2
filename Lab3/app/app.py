@@ -58,7 +58,7 @@ def login():
                 flash('Классный вход', 'success')
                 next_ = request.args.get('next')
                 return redirect(next_ or url_for('index'))
-        flash('Плохой мальчик', 'danger')
+        flash('Проверьте логин и пароль', 'danger')
     return render_template('login.html')
 
 @app.route('/logout')

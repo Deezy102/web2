@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% from 'pagination.html' import render_pagination %}
+
+{% block content %}
+
+<div class="container">
+    <form class="mb-5 mt-3 row align-items-center">
+        <div class="col-md-4 my-3">
+            <select class="form-select" id="filters" name="filters" title="Сортировка">
+                <option value="new" {% if 'new' in request.args.getlist('filters') %}selected{% endif %}>Сначала новые</option>
+                <option value="old" {% if 'old' in request.args.getlist('filters') %}selected{% endif %}>Сначала старые</option>
+                <option value="pos" {% if 'pos' in request.args.getlist('filters') %}selected{% endif %}>Сначала положительные</option>
+                <option value="neg" {% if 'neg' in request.args.getlist('filters') %}selected{% endif %}>Сначала отрицательные</option>
+            </select>
+        </div>
+    
+        <div class="col-md-2 my-3 align-self-end">
+            <button type="submit" class="btn btn-dark w-100 mt-auto">Применить</button>
+        </div>
+    </form>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Пользователь</th>
+                <th>Дата отзыва</th>
+                <th>Оценка</th>
+                <th>Текст</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in reviews %}
+            <tr>
+                <tr>
+                    <td>{{ review.user.first_name }} {{review.user.last_name}}</td>
+                    <td>{{ review.created_at.strftime('%d.%m.%y %H:%M:%S') }}</td>
+                    <td>{{ review.rating }}</td>
+                    <td>{{ review.text }}</td>
+                </tr>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if reviews %}
+    <div class="mb-5">
+        {{ render_pagination(pagination, request.endpoint, {'course_id': reviews[0].course.id, 'filters': request.args.getlist('filters')}) }}
+    </div>
+    {% endif %}
+
+    {% if not user_review and current_user.is_authenticated %}
+    <h2>Оставить отзыв</h2>
+    
+    <form class="mb-5 mt-3 row align-items-center" method="post" action="{{ url_for('courses.create_review', course_id = course.id) }}">
+        <div class="col-md-4 my-3">
+            <select class="form-select" id="review-rating" name="review-rating" title="Рейтинг">
+                <option value="5" selected>Отлично</option>
+                <option value="4">Хорошо</option>
+                <option value="3">Удовлетворительно</option>
+                <option value="2">Неудовлетворительно</option>
+                <option value="1">Плохо</option>
+                <option value="0">Ужасно</option>
+            </select>
+        </div>
+    
+        <div class="col-md-4 my-3">
+            <textarea class="form-text" name="review-text" id="review-text"></textarea>
+        </div>
+    
+        <div class="col-md-2 my-3 align-self-end">
+            <button type="submit" class="btn btn-dark w-100 mt-auto">Отправить</button>
+        </div>
+    </form>
+    {% elif user_review %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Пользователь</th>
+                <th>Дата отзыва</th>
+                <th>Оценка</th>
+                <th>Текст</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <tr>
+                    <td>{{ user_review.user.first_name }} {{user_review.user.last_name}}</td>
+                    <td>{{ user_review.created_at.strftime('%d.%m.%y %H:%M:%S') }}</td>
+                    <td>{{ user_review.rating }}</td>
+                    <td>{{ user_review.text }}</td>
+                </tr>
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
+{% endblock %}
